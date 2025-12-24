@@ -9,6 +9,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 )
 
 func main() {
@@ -17,5 +18,6 @@ func main() {
 	port := flag.Int("port", 8080, "Server port")
 	flag.Parse() // parse the command-line flags
 
+	fmt.Printf("Starting HTTP server on %s:%d\n", *host, *port)
 	ServerForever(*host, *port)
 }
