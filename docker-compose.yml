@@ -27,7 +27,7 @@ services:
       - internal-net
     ports:
       - "7090:7090"
-    command: ["./reverse-proxy-server", "-host", "0.0.0.0", "-port", "7090", "-map", "/server1=http-server-1:8081,/server2=http-server-2:8082"]
+    command: ["./reverse-proxy-server", "-host", "0.0.0.0", "-port", "7090", "-map", "/server1=http-server-1:8443,/server2=http-server-2:9443"]
 
   http-server-1:
     build:
@@ -50,7 +50,7 @@ services:
     container_name: http-server-2
     # ports:
     #   - "8081:8081"
-    command: ["./server", "-host", "0.0.0.0", "-port", "8082"]
+    command: ["./server", "-host", "0.0.0.0", "-port", "9443"]
     restart: unless-stopped
     networks:
       - internal-net

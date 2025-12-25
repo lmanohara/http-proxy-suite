@@ -27,5 +27,11 @@ COPY --from=builder /app/reverse-proxy-server .
 # Expose port
 EXPOSE 7090
 
+COPY certs/ /etc/ssl/certs/
+
+RUN chmod 644 /etc/ssl/certs/*.crt
+
+RUN chmod 600 /etc/ssl/certs/*.key
+
 # Run the binary
 CMD ["./reverse-proxy-server", "-host", "127.0.0.1", "-port", "7090", "-map", "/server1=127.0.0.1:8081"]

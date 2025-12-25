@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+	"log"
 	"os"
 )
 
@@ -17,23 +18,18 @@ func ServerForever(host string, port int) {
 
 	cert, err := tls.LoadX509KeyPair(CertFilePath, KeyFilePath)
 	if err != nil {
-		fmt.Println("Error loading server certificate and key:", err)
-		panic(err)
+		log.Fatalf("Error loading server certificate and key: %v", err)
 	}
 
 	certPool, err := x509.SystemCertPool()
-
 	if err != nil {
-		fmt.Println("Error loading system cert pool:", err)
-		panic(err)
+		log.Fatalf("Error loading system cert pool: %v", err)
 	}
 
 	if caCertPEM, err := os.ReadFile(CACertFilePath); err != nil {
-		fmt.Println("Error reading CA certificate:", err)
-		panic(err)
+		log.Fatalf("Error reading CA certificate: %v", err)
 	} else if ok := certPool.AppendCertsFromPEM(caCertPEM); !ok {
-		fmt.Println("Error appending CA certificate to pool")
-		panic(err)
+		log.Fatal("Error appending CA certificate to pool")
 	}
 
 	tlsConfig := &tls.Config{

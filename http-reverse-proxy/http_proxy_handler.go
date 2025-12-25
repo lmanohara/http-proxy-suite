@@ -2,14 +2,51 @@ package main
 
 import (
 	"bytes"
+	"crypto/tls"
+	"crypto/x509"
 	"errors"
 	"fmt"
 	"net"
 	"net/url"
+	"os"
 	"strings"
+	"time"
+)
+
+var (
+	CACertFilePath = "/etc/ssl/certs/ca.crt"
+	CertFilePath   = "/etc/ssl/certs/client.crt"
+	KeyFilePath    = "/etc/ssl/certs/client.key"
 )
 
 func Handle(buff []byte, mapping proxyMappings) []byte {
+
+	cert, err := tls.LoadX509KeyPair(CertFilePath, KeyFilePath)
+	if err != nil {
+		fmt.Println("Error loading client certificate and key:", err)
+		panic(err)
+	}
+
+	certPool, err := x509.SystemCertPool()
+
+	if err != nil {
+		fmt.Println("Error loading system cert pool:", err)
+		panic(err)
+	}
+
+	if caCertPEM, err := os.ReadFile(CACertFilePath); err != nil {
+		fmt.Println("Error reading CA certificate:", err)
+		panic(err)
+	} else if ok := certPool.AppendCertsFromPEM(caCertPEM); !ok {
+		fmt.Println("Error appending CA certificate to pool")
+		panic(err)
+	}
+
+	tlsConfig := &tls.Config{
+		Certificates: []tls.Certificate{cert},
+		RootCAs:      certPool,
+	}
+
 	HttpRequest, error := parsedRequest(buff)
 	if error != nil {
 		fmt.Println(error)
@@ -32,10 +69,11 @@ func Handle(buff []byte, mapping proxyMappings) []byte {
 
 	fmt.Println("source address: ", sourceAddress)
 	// establish connection to the http server host and port
-	conn, error := net.Dial("tcp", sourceAddress)
+	// conn, error := net.Dial("tcp", sourceAddress)
+	conn, err := tls.DialWithDialer(&net.Dialer{Timeout: 15 * time.Second}, "tcp", sourceAddress, tlsConfig)
 
-	if error != nil {
-		fmt.Println(error)
+	if err != nil {
+		fmt.Println(err)
 		return nil
 	}
 
