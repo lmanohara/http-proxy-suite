@@ -14,9 +14,9 @@ import (
 )
 
 var (
-	CACertFilePath = "/etc/ssl/certs/ca.crt"
-	CertFilePath   = "/etc/ssl/certs/client.crt"
-	KeyFilePath    = "/etc/ssl/certs/client.key"
+	CACertFilePath = os.Getenv("TLS_CA")
+	CertFilePath   = os.Getenv("TLS_SERVER_CERT")
+	KeyFilePath    = os.Getenv("TLS_SERVER_KEY")
 )
 
 func Handle(buff []byte, mapping proxyMappings) []byte {

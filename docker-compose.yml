@@ -27,6 +27,14 @@ services:
       - internal-net
     ports:
       - "7090:7090"
+    environment:
+      - TLS_SERVER_CERT=/etc/ssl/certs/client.crt
+      - TLS_SERVER_KEY=/etc/ssl/keys/client.key
+      - TLS_CA=/etc/ssl/certs/ca.crt
+    volumes:
+      - ./mtls/certs/client.crt:/etc/ssl/certs/client.crt:ro
+      - ./mtls/certs/ca.crt:/etc/ssl/certs/ca.crt:ro
+      - ./mtls/keys/client.key:/etc/ssl/keys/client.key:ro
     command: ["./reverse-proxy-server", "-host", "0.0.0.0", "-port", "7090", "-map", "/server1=http-server-1:8443,/server2=http-server-2:9443"]
 
   http-server-1:
@@ -40,8 +48,15 @@ services:
     restart: unless-stopped
     networks:
       - internal-net
+    environment:
+      - TLS_SERVER_CERT=/etc/ssl/certs/server.crt
+      - TLS_SERVER_KEY=/etc/ssl/keys/server.key
+      - TLS_CA=/etc/ssl/certs/ca.crt
     volumes:
       - ./http-server/index_server_1.html:/root/index.html:ro
+      - ./mtls/certs/server.crt:/etc/ssl/certs/server.crt:ro
+      - ./mtls/certs/ca.crt:/etc/ssl/certs/ca.crt:ro
+      - ./mtls/keys/server.key:/etc/ssl/keys/server.key:ro
 
   http-server-2:
     build:
@@ -54,8 +69,15 @@ services:
     restart: unless-stopped
     networks:
       - internal-net
+    environment:
+      - TLS_SERVER_CERT=/etc/ssl/certs/server.crt
+      - TLS_SERVER_KEY=/etc/ssl/keys/server.key
+      - TLS_CA=/etc/ssl/certs/ca.crt
     volumes:
       - ./http-server/index_server_2.html:/root/index.html:ro
+      - ./mtls/certs/server.crt:/etc/ssl/certs/server.crt:ro
+      - ./mtls/certs/ca.crt:/etc/ssl/certs/ca.crt:ro
+      - ./mtls/keys/server.key:/etc/ssl/keys/server.key:ro
 
 networks:
   internal-net:
