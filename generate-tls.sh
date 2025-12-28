@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-BASE_DIR="tls"
+BASE_DIR="tls-configs"
 
 init_dirs() {
   mkdir -p "$1"/{certs,keys}
@@ -88,5 +88,6 @@ process_proxy() {
 
 process_proxy "$BASE_DIR/reverse-proxy"
 process_proxy "$BASE_DIR/forward-proxy"
+process_proxy "$BASE_DIR/web-server"
 
 echo "✅ TLS certificates generated with secure permissions"

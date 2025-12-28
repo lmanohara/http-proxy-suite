@@ -12,8 +12,14 @@ services:
       - public-net
       - internal-net
     ports:
-      - "6790:6790"
-    command: ["./proxy-server", "-host", "0.0.0.0", "-port", "6790"]
+      - "6443:6443"
+    environment:
+      - TLS_SERVER_CERT=/etc/ssl/certs/server.crt
+      - TLS_SERVER_KEY=/etc/ssl/keys/server.key
+    volumes:
+      - ./tls-configs/forward-proxy/certs/server.crt:/etc/ssl/certs/server.crt:ro
+      - ./tls-configs/forward-proxy/keys/server.key:/etc/ssl/keys/server.key:ro
+    command: ["./proxy-server", "-host", "0.0.0.0", "-port", "6443"]
 
   reverse-proxy-server:
     build:
@@ -28,13 +34,13 @@ services:
     ports:
       - "7090:7090"
     environment:
-      - TLS_SERVER_CERT=/etc/ssl/certs/client.crt
-      - TLS_SERVER_KEY=/etc/ssl/keys/client.key
-      - TLS_CA=/etc/ssl/certs/ca.crt
+      - TLS_SERVER_CERT=/etc/ssl/certs/web-serverclient.crt
+      - TLS_SERVER_KEY=/etc/ssl/keys/web-server-client.key
+      - TLS_CA=/etc/ssl/certs/web-server-ca.crt
     volumes:
-      - ./mtls/certs/client.crt:/etc/ssl/certs/client.crt:ro
-      - ./mtls/certs/ca.crt:/etc/ssl/certs/ca.crt:ro
-      - ./mtls/keys/client.key:/etc/ssl/keys/client.key:ro
+      - ./tls-configs/web-server/certs/client.crt:/etc/ssl/certs/web-serverclient.crt:ro
+      - ./tls-configs/web-server/certs/ca.crt:/etc/ssl/certs/web-server-ca.crt:ro
+      - ./tls-configs/web-server/keys/client.key:/etc/ssl/keys/web-server-client.key:ro
     command: ["./reverse-proxy-server", "-host", "0.0.0.0", "-port", "7090", "-map", "/server1=http-server-1:8443,/server2=http-server-2:9443"]
 
   http-server-1:
@@ -54,9 +60,9 @@ services:
       - TLS_CA=/etc/ssl/certs/ca.crt
     volumes:
       - ./http-server/index_server_1.html:/root/index.html:ro
-      - ./mtls/certs/server.crt:/etc/ssl/certs/server.crt:ro
-      - ./mtls/certs/ca.crt:/etc/ssl/certs/ca.crt:ro
-      - ./mtls/keys/server.key:/etc/ssl/keys/server.key:ro
+      - ./tls-configs/web-server/certs/server.crt:/etc/ssl/certs/server.crt:ro
+      - ./tls-configs/web-server/certs/ca.crt:/etc/ssl/certs/ca.crt:ro
+      - ./tls-configs/web-server/keys/server.key:/etc/ssl/keys/server.key:ro
 
   http-server-2:
     build:
@@ -75,9 +81,9 @@ services:
       - TLS_CA=/etc/ssl/certs/ca.crt
     volumes:
       - ./http-server/index_server_2.html:/root/index.html:ro
-      - ./mtls/certs/server.crt:/etc/ssl/certs/server.crt:ro
-      - ./mtls/certs/ca.crt:/etc/ssl/certs/ca.crt:ro
-      - ./mtls/keys/server.key:/etc/ssl/keys/server.key:ro
+      - ./tls-configs/web-server/certs/server.crt:/etc/ssl/certs/server.crt:ro
+      - ./tls-configs/web-server/certs/ca.crt:/etc/ssl/certs/ca.crt:ro
+      - ./tls-configs/web-server/keys/server.key:/etc/ssl/keys/server.key:ro
 
 networks:
   internal-net:

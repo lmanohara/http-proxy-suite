@@ -26,12 +26,6 @@ COPY --from=builder /app/server .
 
 COPY index_server_1.html index.html
 
-COPY certs/ /etc/ssl/certs/
-
-RUN chmod 644 /etc/ssl/certs/*.crt
-
-RUN chmod 600 /etc/ssl/certs/*.key
-
 # Expose port
 EXPOSE 8443
 

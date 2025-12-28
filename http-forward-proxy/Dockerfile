@@ -25,7 +25,7 @@ WORKDIR /root/
 COPY --from=builder /app/proxy-server .
 
 # Expose port
-EXPOSE 6790
+EXPOSE 6443
 
 # Run the binary
-CMD ["./proxy-server", "-host", "127.0.0.1", "-port", "6790"]
+CMD ["./proxy-server", "-host", "127.0.0.1", "-port", "6443"]
