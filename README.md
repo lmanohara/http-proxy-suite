@@ -42,7 +42,7 @@ sequenceDiagram
 
     Note over Client,HTTPServer: Phase 2: HTTP CONNECT Tunnel
 
-    Client->>ForwardProxy: CONNECT reverse-proxy-server:7443 HTTP/1.1
+    Client->>ForwardProxy: CONNECT reverse-proxy-server:7443 HTTP/1.1, Proxy-Connection: Keep-Alive
     ForwardProxy->>Client: HTTP/1.1 200 Connection Established
     Note over Client,ForwardProxy: CONNECT Tunnel Established
 
@@ -74,14 +74,9 @@ sequenceDiagram
 
     Note over Client,HTTPServer: Certificate Chain Verification
 
-
     Note over ForwardProxy: Server Cert: CN=server CA: forward-proxy Root CA Validates: --proxy-cacert ca.crt
 
-
-
     Note over ReverseProxy: Server Cert: CN=server CA: reverse-proxy Root CA Validates: --cacert ca.crt
-
-
 
     Note over HTTPServer: mTLS Required Client + Server Certificates Mutual Authentication
 ```
@@ -103,6 +98,11 @@ Only the key files are included below:
 │   ├── main.go
 │   ├── index_server_1.html
 │   └── index_server_2.html
+|–– tls-configs
+│   ├── forward-proxy
+│   ├── reverse-proxy
+│   └── web-server
+├── generate-tls.sh
 ├── docker-compose.yml
 └── README.md
 ```
@@ -111,6 +111,8 @@ Only the key files are included below:
 - `http-reverse-proxy/` – contains the reverse proxy main code and Dockerfile.
 - `http-server/` – contains the HTTP server code and key index files.
 - `docker-compose.yml` – orchestrates the containers and networks.
+- `generate-tls.sh` – generates tls certificates and keys under each service.
+- `tls-configs` – contains generated certificates and keys.
 
 ---
 
@@ -123,8 +125,12 @@ Only the key files are included below:
 ---
 
 ## Setup & Running
-
-### 1. Build and start all services
+### 1. Generates certificates and keys
+```bash
+chmod 755 generate-tls.sh
+./generate-tls.sh
+```
+### 2. Build and start all services
 
 ```bash
 docker-compose up --build -d
@@ -149,7 +155,7 @@ The reverse proxy mappings can be configured via the `-map` argument in the form
 Example in `docker-compose.yml`:
 
 ```yaml
-command: ["./reverse-proxy-server", "-host", "0.0.0.0", "-port", "7090", "-map", "/server1=http-server-1:8081,/server2=http-server-2:8082"]
+command: ["./reverse-proxy-server", "-host", "0.0.0.0", "-port", "7443", "-map", "/server1=http-server-1:8443,/server2=http-server-2:9443"]
 ```
 
 ---
@@ -159,14 +165,13 @@ command: ["./reverse-proxy-server", "-host", "0.0.0.0", "-port", "7090", "-map",
 Server 1:
 
 ```bash
-curl -v -x http://127.0.0.1:6790 http://reverse-proxy-server:7090/server1
-curl -v -x https://127.0.0.1:6443 --proxy-cacert ca.crt http://reverse-proxy-server:7090/server1
+curl -v -x https://127.0.0.1:6443 --proxy-cacert /tls-configs/forward-proxy/certs/ca.crt https://reverse-proxy-server:7443/server1 --cacert /tls-configs/reverse-proxy/certs/ca.crt
 ```
 
 Server 2:
 
 ```bash
-curl -v -x http://127.0.0.1:6790 http://reverse-proxy-server:7090/server2
+curl -v -x https://127.0.0.1:6443 --proxy-cacert /tls-configs/forward-proxy/certs/ca.crt https://reverse-proxy-server:7443/server2 --cacert /tls-configs/reverse-proxy/certs/ca.crt
 ```
 
 ---
