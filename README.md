@@ -42,22 +42,22 @@ sequenceDiagram
 
     Note over Client,HTTPServer: Phase 2: HTTP CONNECT Tunnel
 
-    Client->>ForwardProxy: CONNECT reverse-proxy-server:7443 HTTP/1.1<br/>Host: reverse-proxy-server:7443<br/>Proxy-Connection: Keep-Alive
+    Client->>ForwardProxy: CONNECT reverse-proxy-server:7443 HTTP/1.1
     ForwardProxy->>Client: HTTP/1.1 200 Connection Established
     Note over Client,ForwardProxy: CONNECT Tunnel Established
 
     Note over Client,HTTPServer: Phase 3: Client → Reverse Proxy TLS (through tunnel)
 
-    Client->>ReverseProxy: TLS Client Hello (TLSv1.3)<br/>via Forward Proxy tunnel
-    ReverseProxy->>Client: Server Hello + Certificate Chain<br/>via Forward Proxy tunnel
+    Client->>ReverseProxy: TLS Client Hello (TLSv1.3) via Forward Proxy tunnel
+    ReverseProxy->>Client: Server Hello + Certificate Chain via Forward Proxy tunnel
     Note right of ReverseProxy: CN=server Issuer: reverse-proxy Root CA SAN: reverse-proxy-server
-    ReverseProxy->>Client: Certificate Verify + Finished<br/>via Forward Proxy tunnel
-    Client->>ReverseProxy: Finished<br/>via Forward Proxy tunnel
+    ReverseProxy->>Client: Certificate Verify + Finished via Forward Proxy tunnel
+    Client->>ReverseProxy: Finished via Forward Proxy tunnel
     Note over Client,ReverseProxy: End-to-End TLS Established
 
     Note over Client,HTTPServer: Phase 4: HTTP Request/Response
 
-    Client->>ReverseProxy: GET /server1 HTTP/1.1<br/>Host: reverse-proxy-server:7443<br/>Accept: */*
+    Client->>ReverseProxy: GET /server1 HTTP/1.1
     
     Note over ReverseProxy,HTTPServer: Phase 5: Reverse Proxy → HTTP Server mTLS
     
@@ -68,9 +68,9 @@ sequenceDiagram
     Note over ReverseProxy,HTTPServer: mTLS Connection Established
     
     ReverseProxy->>HTTPServer: GET /server1 HTTP/1.1 (over mTLS)
-    HTTPServer->>ReverseProxy: HTTP/1.1 200 OK<br/>Content-Type: text/html
+    HTTPServer->>ReverseProxy: HTTP/1.1 200 OK
     
-    ReverseProxy->>Client: HTTP/1.1 200 OK<br/>Content-Type: text/html<br/>Connection: close<br/><br/>Hello from Server 1
+    ReverseProxy->>Client: HTTP/1.1 200 OK, Connection: close
 
     Note over Client,HTTPServer: Certificate Chain Verification
 
