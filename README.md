@@ -31,37 +31,37 @@ graph TD
 ```mermaid
 sequenceDiagram
     participant Client
-    participant ForwardProxy as Forward Proxy<br/>Port: 6443<br/>(TLS Server)
-    participant ReverseProxy as Reverse Proxy<br/>Port: 7443<br/>(TLS Server)
-    participant HTTPServer as HTTP Server<br/>Port: 8443<br/>(mTLS Server)
+    participant ForwardProxy as Forward Proxy\nPort: 6443\n(TLS Server)
+    participant ReverseProxy as Reverse Proxy\nPort: 7443\n(TLS Server)
+    participant HTTPServer as HTTP Server\nPort: 8443\n(mTLS Server)
 
     Note over Client,HTTPServer: Phase 1: Client → Forward Proxy TLS
 
     Client->>ForwardProxy: TLS Client Hello (TLSv1.3) with CA Certificate
     ForwardProxy->>Client: Server Hello + Certificate Chain
-    Note right of ForwardProxy: CN=server<br/>Issuer: forward-proxy Root CA<br/>SAN: 127.0.0.1
+    Note right of ForwardProxy: CN=server\nIssuer: forward-proxy Root CA\nSAN: 127.0.0.1
     ForwardProxy->>Client: Certificate Verify + Finished
     Client->>ForwardProxy: Finished
     Note over Client,ForwardProxy: TLS Connection Established
 
     Note over Client,HTTPServer: Phase 2: HTTP CONNECT Tunnel
 
-    Client->>ForwardProxy: CONNECT reverse-proxy-server:7443 HTTP/1.1<br/>Host: reverse-proxy-server:7443<br/>Proxy-Connection: Keep-Alive
+    Client->>ForwardProxy: CONNECT reverse-proxy-server:7443 HTTP/1.1\nHost: reverse-proxy-server:7443\nProxy-Connection: Keep-Alive
     ForwardProxy->>Client: HTTP/1.1 200 Connection Established
     Note over Client,ForwardProxy: CONNECT Tunnel Established
 
     Note over Client,HTTPServer: Phase 3: Client → Reverse Proxy TLS (through tunnel)
 
-    Client->>ReverseProxy: TLS Client Hello (TLSv1.3)<br/>via Forward Proxy tunnel
-    ReverseProxy->>Client: Server Hello + Certificate Chain<br/>via Forward Proxy tunnel
-    Note right of ReverseProxy: CN=server<br/>Issuer: reverse-proxy Root CA<br/>SAN: reverse-proxy-server
-    ReverseProxy->>Client: Certificate Verify + Finished<br/>via Forward Proxy tunnel
-    Client->>ReverseProxy: Finished<br/>via Forward Proxy tunnel
+    Client->>ReverseProxy: TLS Client Hello (TLSv1.3)\nvia Forward Proxy tunnel
+    ReverseProxy->>Client: Server Hello + Certificate Chain\nvia Forward Proxy tunnel
+    Note right of ReverseProxy: CN=server\nIssuer: reverse-proxy Root CA\nSAN: reverse-proxy-server
+    ReverseProxy->>Client: Certificate Verify + Finished\nvia Forward Proxy tunnel
+    Client->>ReverseProxy: Finished\nvia Forward Proxy tunnel
     Note over Client,ReverseProxy: End-to-End TLS Established
 
     Note over Client,HTTPServer: Phase 4: HTTP Request/Response
 
-    Client->>ReverseProxy: GET /server1 HTTP/1.1<br/>Host: reverse-proxy-server:7443<br/>Accept: */*
+    Client->>ReverseProxy: GET /server1 HTTP/1.1\nHost: reverse-proxy-server:7443\nAccept: */*
     
     Note over ReverseProxy,HTTPServer: Phase 5: Reverse Proxy → HTTP Server mTLS
     
@@ -72,23 +72,22 @@ sequenceDiagram
     Note over ReverseProxy,HTTPServer: mTLS Connection Established
     
     ReverseProxy->>HTTPServer: GET /server1 HTTP/1.1 (over mTLS)
-    HTTPServer->>ReverseProxy: HTTP/1.1 200 OK<br/>Content-Type: text/html
+    HTTPServer->>ReverseProxy: HTTP/1.1 200 OK\nContent-Type: text/html
     
-    ReverseProxy->>Client: HTTP/1.1 200 OK<br/>Content-Type: text/html<br/>Connection: close<br/><br/>Hello from Server 1
+    ReverseProxy->>Client: HTTP/1.1 200 OK\nContent-Type: text/html\nConnection: close\n\nHello from Server 1
 
     Note over Client,HTTPServer: Certificate Chain Verification
 
-    rect rgb(240, 248, 255)
-        Note over ForwardProxy: Server Cert: CN=server<br/>CA: forward-proxy Root CA<br/>Validates: --proxy-cacert ca.crt
-    end
 
-    rect rgb(255, 248, 240)
-        Note over ReverseProxy: Server Cert: CN=server<br/>CA: reverse-proxy Root CA<br/>Validates: --cacert ca.crt
-    end
+        Note over ForwardProxy: Server Cert: CN=server\nCA: forward-proxy Root CA\nValidates: --proxy-cacert ca.crt
 
-    rect rgb(248, 255, 240)
-        Note over HTTPServer: mTLS Required<br/>Client + Server Certificates<br/>Mutual Authentication
-    end
+
+
+        Note over ReverseProxy: Server Cert: CN=server\nCA: reverse-proxy Root CA\nValidates: --cacert ca.crt
+
+
+
+        Note over HTTPServer: mTLS Required\nClient + Server Certificates\nMutual Authentication
 ```
 
 
