@@ -31,7 +31,7 @@ func ProxyForever(host string, port int) {
 		fmt.Println(error)
 	}
 
-	defer listener.Close()
+	// defer listener.Close()
 
 	for {
 		conn, error := listener.Accept()
@@ -46,9 +46,11 @@ func ProxyForever(host string, port int) {
 
 		if n > 0 {
 			byte_read := buffer[:n]
-			out := Handle(byte_read)
-			fmt.Print(byte_read)
-			conn.Write(out)
+			err := HandleConnect(conn, byte_read)
+			if err != nil {
+				fmt.Println(err)
+			}
+			// conn.Write(out)
 			// // conn.Close()
 		}
 	}

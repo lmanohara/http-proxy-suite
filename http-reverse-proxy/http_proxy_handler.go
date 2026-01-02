@@ -15,8 +15,8 @@ import (
 
 var (
 	CACertFilePath = os.Getenv("TLS_CA")
-	CertFilePath   = os.Getenv("TLS_SERVER_CERT")
-	KeyFilePath    = os.Getenv("TLS_SERVER_KEY")
+	CertFilePath   = os.Getenv("TLS_CLIENT_CERT")
+	KeyFilePath    = os.Getenv("TLS_CLIENT_KEY")
 )
 
 func Handle(buff []byte, mapping proxyMappings) []byte {

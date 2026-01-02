@@ -25,7 +25,7 @@ WORKDIR /root/
 COPY --from=builder /app/reverse-proxy-server .
 
 # Expose port
-EXPOSE 7090
+EXPOSE 7443
 
 # Run the binary
-CMD ["./reverse-proxy-server", "-host", "127.0.0.1", "-port", "7090", "-map", "/server1=127.0.0.1:8081"]
+CMD ["./reverse-proxy-server", "-host", "127.0.0.1", "-port", "7443", "-map", "/server1=127.0.0.1:8081"]

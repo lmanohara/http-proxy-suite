@@ -2,7 +2,8 @@ package main
 
 type HttpRequest struct {
 	Method  string
-	Path    string
+	Host    string
+	Port    string
 	Version string
 	Headers map[string]string
 }
