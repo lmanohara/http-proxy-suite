@@ -31,7 +31,7 @@ graph TD
 ```mermaid
 sequenceDiagram
     participant Client
-    participant ForwardProxy as Forward Proxy\nPort: 6443\n(TLS Server)
+    participant ForwardProxy as Forward Proxy <br/>Port: 6443 r/(TLS Server)
     participant ReverseProxy as Reverse Proxy\nPort: 7443\n(TLS Server)
     participant HTTPServer as HTTP Server\nPort: 8443\n(mTLS Server)
 
