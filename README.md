@@ -35,7 +35,7 @@ sequenceDiagram
 
     Client->>ForwardProxy: TLS Client Hello (TLSv1.3) with CA Certificate
     ForwardProxy->>Client: Server Hello + Certificate Chain
-    Note right of ForwardProxy: CN=server<br/>Issuer: forward-proxy Root CA<br/>SAN: 127.0.0.1
+    Note right of ForwardProxy: CN=server Issuer: forward-proxy Root CA SAN: 127.0.0.1
     ForwardProxy->>Client: Certificate Verify + Finished
     Client->>ForwardProxy: Finished
     Note over Client,ForwardProxy: TLS Connection Established
@@ -50,7 +50,7 @@ sequenceDiagram
 
     Client->>ReverseProxy: TLS Client Hello (TLSv1.3)<br/>via Forward Proxy tunnel
     ReverseProxy->>Client: Server Hello + Certificate Chain<br/>via Forward Proxy tunnel
-    Note right of ReverseProxy: CN=server<br/>Issuer: reverse-proxy Root CA<br/>SAN: reverse-proxy-server
+    Note right of ReverseProxy: CN=server Issuer: reverse-proxy Root CA SAN: reverse-proxy-server
     ReverseProxy->>Client: Certificate Verify + Finished<br/>via Forward Proxy tunnel
     Client->>ReverseProxy: Finished<br/>via Forward Proxy tunnel
     Note over Client,ReverseProxy: End-to-End TLS Established
@@ -75,18 +75,16 @@ sequenceDiagram
     Note over Client,HTTPServer: Certificate Chain Verification
 
 
-        Note over ForwardProxy: Server Cert: CN=server<br/>CA: forward-proxy Root CA<br/>Validates: --proxy-cacert ca.crt
+    Note over ForwardProxy: Server Cert: CN=server CA: forward-proxy Root CA Validates: --proxy-cacert ca.crt
 
 
 
-        Note over ReverseProxy: Server Cert: CN=server<br/>CA: reverse-proxy Root CA<br/>Validates: --cacert ca.crt
+    Note over ReverseProxy: Server Cert: CN=server CA: reverse-proxy Root CA Validates: --cacert ca.crt
 
 
 
-        Note over HTTPServer: mTLS Required<br/>Client + Server Certificates<br/>Mutual Authentication
+    Note over HTTPServer: mTLS Required Client + Server Certificates Mutual Authentication
 ```
-
-
 ---
 
 ## Project Structure
