@@ -1,12 +1,14 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 )
 
 func main() {
-
+	ctx := context.Background()
+	setRateLimit(ctx)
 	mappings := proxyMappings{}
 
 	host := flag.String("host", "127.0.0.1", "Server host")

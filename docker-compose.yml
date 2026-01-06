@@ -29,6 +29,7 @@ services:
     depends_on:
       - http-server-1
       - http-server-2
+      - redis-server
     networks:
       - internal-net
     ports:
@@ -89,6 +90,15 @@ services:
       - ./tls-configs/web-server/certs/ca.crt:/etc/ssl/certs/ca.crt:ro
       - ./tls-configs/web-server/keys/server.key:/etc/ssl/keys/server.key:ro
 
+  redis-server:
+    image: "redis:alpine"
+    container_name: redis-server
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - internal-net
+    
 networks:
   internal-net:
     driver: bridge
