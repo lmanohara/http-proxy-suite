@@ -1,9 +1,12 @@
 package main
 
 import (
+	"context"
 	"crypto/tls"
 	"fmt"
 	"os"
+
+	"github.com/go-redis/redis/v8"
 )
 
 var (
@@ -11,7 +14,7 @@ var (
 	ServerKeyFilePath  = os.Getenv("TLS_SERVER_KEY")
 )
 
-func ProxyForever(host string, port int, mappings proxyMappings) {
+func ProxyForever(host string, port int, mappings proxyMappings, client *redis.Client, ctx context.Context) {
 	cert, err := tls.LoadX509KeyPair(ServerCertFilePath, ServerKeyFilePath)
 
 	if err != nil {
@@ -47,7 +50,7 @@ func ProxyForever(host string, port int, mappings proxyMappings) {
 
 		if n > 0 {
 			byte_read := buffer[:n]
-			out := Handle(byte_read, mappings)
+			out := Handle(byte_read, mappings, client, ctx)
 			fmt.Print(byte_read)
 			conn.Write(out)
 			// // conn.Close()

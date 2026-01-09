@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"errors"
@@ -11,6 +12,8 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"github.com/go-redis/redis/v8"
 )
 
 var (
@@ -19,8 +22,9 @@ var (
 	KeyFilePath    = os.Getenv("TLS_CLIENT_KEY")
 )
 
-func Handle(buff []byte, mapping proxyMappings) []byte {
+func Handle(buff []byte, mapping proxyMappings, client *redis.Client, ctx context.Context) []byte {
 
+	isRateLimited("127.0.0.1", ctx, client)
 	cert, err := tls.LoadX509KeyPair(CertFilePath, KeyFilePath)
 	if err != nil {
 		fmt.Println("Error loading client certificate and key:", err)
